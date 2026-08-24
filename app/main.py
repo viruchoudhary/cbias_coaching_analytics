@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import sys
 
-# 1. Set Streamlit Page Config (Must be very first command)
+# 1. Set Streamlit Page Config
 st.set_page_config(
     page_title="CBIAS - Coaching Business Intelligence System",
     page_icon="🎓",
@@ -19,9 +19,11 @@ if root_dir not in sys.path:
 if app_dir not in sys.path:
     sys.path.insert(0, app_dir)
 
-# Auto-seed database if running on Cloud
+# Auto-seed database & default hashed users
 from src.data_seeder import DataSeeder
+from src.auth import AuthManager
 DataSeeder.seed_data()
+AuthManager.seed_default_users()
 
 # 3. Futuristic Cyberpunk 3D Styling
 st.markdown("""
@@ -67,11 +69,13 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+from views.page_login import render_login_page
 from views.page_dashboard import render_dashboard_page
 from views.page_students import render_students_page
 from views.page_courses import render_courses_page
 from views.page_fees import render_fees_page
 from views.page_attendance import render_attendance_page
+from views.page_tests import render_tests_page
 from views.page_crm import render_crm_page
 from views.page_marketing import render_marketing_page
 from views.page_faculty import render_faculty_page
@@ -79,6 +83,9 @@ from views.page_expenses import render_expenses_page
 from views.page_pnl import render_pnl_page
 from views.page_risk import render_risk_page
 from views.page_insights import render_insights_page
+from views.page_notifications import render_notifications_page
+from views.page_ai_advisor import render_ai_advisor_page
+from views.page_tenants import render_tenants_page
 
 def main():
     st.sidebar.markdown("<h1 class='main-header'>🎓 CBIAS 3D</h1>", unsafe_allow_html=True)
@@ -96,11 +103,16 @@ def main():
 
     # Module Navigation
     menu_options = {
+        "🔐 Security & Login Portal": render_login_page,
+        "🏢 Multi-Tenant SaaS Portal": render_tenants_page,
         "📊 Executive Dashboard": render_dashboard_page,
         "👥 Student Master": render_students_page,
         "📚 Courses & Batches": render_courses_page,
         "💰 Fee Ledger & Receipts": render_fees_page,
         "📝 Attendance Alerts": render_attendance_page,
+        "🏆 Test & Examinations": render_tests_page,
+        "🔔 Parent WhatsApp Alerts": render_notifications_page,
+        "🤖 AI Coaching Advisor": render_ai_advisor_page,
         "📞 Lead & CRM Pipeline": render_crm_page,
         "📈 Marketing ROI": render_marketing_page,
         "👨‍🏫 Faculty Analytics": render_faculty_page,
