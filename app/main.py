@@ -11,22 +11,25 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. Add root directory to Python path (Fail-safe for Linux Cloud Containers)
+# 2. Add root, src, and app directories to Python path (Linux Cloud Container Fix)
 app_dir = os.path.dirname(os.path.abspath(__file__))
 root_dir = os.path.abspath(os.path.join(app_dir, '..'))
-sys.path.insert(0, root_dir)
-sys.path.insert(0, app_dir)
+src_dir = os.path.join(root_dir, 'src')
 
-# Auto-seed database & default hashed users with fail-safe imports
+for d in [root_dir, src_dir, app_dir]:
+    if d not in sys.path:
+        sys.path.insert(0, d)
+
+# Fail-safe module imports for Cloud Servers
 try:
     from src.data_seeder import DataSeeder
-except Exception:
-    from data_seeder import DataSeeder
-
-try:
     from src.auth import AuthManager
 except Exception:
-    from auth import AuthManager
+    try:
+        from data_seeder import DataSeeder
+        from auth import AuthManager
+    except Exception as e:
+        st.error(f"Module Import Error: {e}")
 
 DataSeeder.seed_data()
 AuthManager.seed_default_users()
