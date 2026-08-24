@@ -1,0 +1,63 @@
+import streamlit as st
+import pandas as pd
+from datetime import datetime
+import os
+import sys
+
+app_dir = os.path.dirname(os.path.abspath(__file__))
+root_dir = os.path.abspath(os.path.join(app_dir, '../..'))
+if root_dir not in sys.path:
+    sys.path.insert(0, root_dir)
+
+from src.db_manager import DBManager
+
+def render_attendance_page():
+    st.markdown("### 📝 Module 5: Attendance Tracking & Low-Attendance Alerts (<60%)")
+
+    students_df = DBManager.get_table_df("students")
+    batches_df = DBManager.get_table_df("batches")
+    attendance_df = DBManager.get_table_df("attendance")
+
+    st.subheader("⚠️ Low Attendance Warnings (<60% Threshold)")
+    if not attendance_df.empty:
+        att_counts = attendance_df.groupby(['student_name', 'status'])['attendance_id'].count().unstack(fill_value=0)
+        if 'Present' in att_counts.columns:
+            att_counts['Total_Classes'] = att_counts.sum(axis=1)
+            att_counts['Attendance_Pct'] = round((att_counts['Present'] / att_counts['Total_Classes']) * 100.0, 1)
+
+            low_att_df = att_counts[att_counts['Attendance_Pct'] < 60.0].reset_index()
+            if not low_att_df.empty:
+                st.error(f"🚨 **{len(low_att_df)} Students** have Attendance Below 60%!")
+                st.dataframe(low_att_df[['student_name', 'Present', 'Total_Classes', 'Attendance_Pct']], use_container_width=True)
+            else:
+                st.success("✅ Excellent! All active students have Attendance >= 60%.")
+
+    st.markdown("---")
+
+    with st.expander("📝 Mark Daily Student Attendance", expanded=False):
+        with st.form("mark_attendance_form"):
+            ac1, ac2 = st.columns(2)
+            batch_sel = ac1.selectbox("Select Batch *", batches_df['batch_name'].tolist() if not batches_df.empty else ["DATA-Batch-01"])
+            student_sel = ac2.selectbox("Select Student *", students_df['full_name'].tolist() if not students_df.empty else ["Aarav Sharma"])
+            att_date = ac1.date_input("Attendance Date")
+            att_status = ac2.radio("Status *", ["Present", "Absent", "Leave"], horizontal=True)
+
+            att_sub = st.form_submit_button("✅ Record Attendance Log")
+            if att_sub and student_sel:
+                conn = DBManager.get_connection()
+                cursor = conn.cursor()
+                cursor.execute(
+                    "INSERT INTO attendance (student_name, batch_name, attendance_date, status) VALUES (?, ?, ?, ?)",
+                    (student_sel, batch_sel, str(att_date), att_status)
+                )
+                conn.commit()
+                conn.close()
+                st.success(f"🎉 Attendance Recorded: **{student_sel}** marked **{att_status}** for {batch_sel}!")
+                st.rerun()
+
+    st.markdown("---")
+    st.subheader("📋 Master Attendance Logs Directory")
+    st.dataframe(attendance_df, use_container_width=True)
+
+if __name__ == '__main__':
+    render_attendance_page()
