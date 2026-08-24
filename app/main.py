@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import sys
 
-# 1. Set Streamlit Page Config
+# 1. Set Streamlit Page Config (Must be very first command)
 st.set_page_config(
     page_title="CBIAS - Coaching Business Intelligence System",
     page_icon="🎓",
@@ -11,17 +11,23 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. Add root directory to Python path
+# 2. Add root directory to Python path (Fail-safe for Linux Cloud Containers)
 app_dir = os.path.dirname(os.path.abspath(__file__))
 root_dir = os.path.abspath(os.path.join(app_dir, '..'))
-if root_dir not in sys.path:
-    sys.path.insert(0, root_dir)
-if app_dir not in sys.path:
-    sys.path.insert(0, app_dir)
+sys.path.insert(0, root_dir)
+sys.path.insert(0, app_dir)
 
-# Auto-seed database & default hashed users
-from src.data_seeder import DataSeeder
-from src.auth import AuthManager
+# Auto-seed database & default hashed users with fail-safe imports
+try:
+    from src.data_seeder import DataSeeder
+except Exception:
+    from data_seeder import DataSeeder
+
+try:
+    from src.auth import AuthManager
+except Exception:
+    from auth import AuthManager
+
 DataSeeder.seed_data()
 AuthManager.seed_default_users()
 
