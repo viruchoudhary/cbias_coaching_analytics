@@ -18,7 +18,8 @@ def render_students_page():
     courses_df = DBManager.get_table_df("courses")
     batches_df = DBManager.get_table_df("batches")
 
-    with st.expander("➕ Register New Student Admission", expanded=False):
+    # 1. Single Student Registration Form
+    with st.expander("➕ Register Single Student Admission", expanded=False):
         with st.form("new_student_form"):
             c1, c2 = st.columns(2)
             name = c1.text_input("Full Name *")
@@ -40,6 +41,35 @@ def render_students_page():
                 conn.close()
                 st.success(f"🎉 Admission Successful for **{name}** in {course}!")
                 st.rerun()
+
+    # 2. 500+ Bulk Excel / CSV Data Importer Section (Expanded by default)
+    with st.expander("📥 1-Click Bulk Excel / CSV Student Upload (500+ Students)", expanded=True):
+        st.markdown("Upload Excel (`.xlsx`) or CSV (`.csv`) containing student profiles to import 500+ students at once.")
+        
+        # Sample Template Download Button
+        sample_df = pd.DataFrame([
+            {"full_name": "Aarav Sharma", "phone": "9876543210", "email": "aarav@gmail.com", "course_name": "Master in Data Science & AI", "batch_name": "MAST-Batch-01", "admission_date": "2024-01-15", "status": "Active"},
+            {"full_name": "Priya Verma", "phone": "9876543211", "email": "priya@gmail.com", "course_name": "Full Stack Web Development", "batch_name": "FULL-Batch-01", "admission_date": "2024-01-16", "status": "Active"}
+        ])
+        st.download_button("📥 Download Sample Excel Template", sample_df.to_csv(index=False).encode('utf-8'), "sample_students_template.csv", "text/csv")
+
+        uploaded_file = st.file_uploader("Choose Excel or CSV File", type=["csv", "xlsx"])
+        if uploaded_file:
+            try:
+                if uploaded_file.name.endswith('.csv'):
+                    bulk_df = pd.read_csv(uploaded_file)
+                else:
+                    bulk_df = pd.read_excel(uploaded_file)
+
+                st.info(f"Loaded **{len(bulk_df)} student records** from file.")
+                if st.button("🚀 Confirm & Import Students to Database"):
+                    conn = DBManager.get_connection()
+                    bulk_df.to_sql("students", conn, if_exists="append", index=False)
+                    conn.close()
+                    st.success(f"🎉 SUCCESS! **{len(bulk_df)} Student Profiles** imported into Database!")
+                    st.rerun()
+            except Exception as e:
+                st.error(f"Error importing file: {e}")
 
     st.markdown("---")
     st.subheader("📋 Registered Students Directory")
