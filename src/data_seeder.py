@@ -12,7 +12,7 @@ from src.db_manager import DBManager
 class DataSeeder:
     """
     Auto-seeds 500+ Students, 10 Courses, 15 Batches, 2000+ Payments,
-    5000+ Attendance logs, 1000 CRM Leads + 5 Extra Pro Features.
+    5000+ Attendance logs, 1000 CRM Leads + 5 Extra Pro Features safely.
     """
 
     @staticmethod
@@ -53,8 +53,8 @@ class DataSeeder:
         )
         """)
 
-        # Check if already seeded
-        cursor.execute("SELECT COUNT(*) FROM students")
+        # Check if courses already seeded
+        cursor.execute("SELECT COUNT(*) FROM courses")
         if cursor.fetchone()[0] > 0:
             conn.close()
             return "Database already seeded."
@@ -72,7 +72,7 @@ class DataSeeder:
             ("Finance & Business Analytics", 3, 30000.0),
             ("Android & Flutter App Dev", 4, 32000.0)
         ]
-        cursor.executemany("INSERT INTO courses (course_name, duration_months, total_fee) VALUES (?, ?, ?)", courses_data)
+        cursor.executemany("INSERT OR IGNORE INTO courses (course_name, duration_months, total_fee) VALUES (?, ?, ?)", courses_data)
 
         # 2. Seed Batches (15 Batches)
         faculties = ["Dr. Sharma", "Prof. Verma", "Vikram Sir", "Neha Ma'am", "Rohan Sir", "Anjali Ma'am"]
@@ -83,7 +83,7 @@ class DataSeeder:
             if b_id <= 5:
                 batches_data.append((f"{c_name[:4].upper()}-Batch-02", c_name, random.choice(faculties), "04:00 PM - 06:00 PM", 35))
             b_id += 1
-        cursor.executemany("INSERT INTO batches (batch_name, course_name, faculty_name, time_slot, capacity) VALUES (?, ?, ?, ?, ?)", batches_data)
+        cursor.executemany("INSERT OR IGNORE INTO batches (batch_name, course_name, faculty_name, time_slot, capacity) VALUES (?, ?, ?, ?, ?)", batches_data)
 
         # 3. Seed Students (500 Students)
         first_names = ["Aarav", "Vivaan", "Aditya", "Vihaan", "Arjun", "Sai", "Reyansh", "Aayaan", "Krishna", "Ishaan",
@@ -143,10 +143,10 @@ class DataSeeder:
             feedback_data.append((name, f_name, rating, f"Great teaching experience with {f_name}!"))
 
         cursor.executemany("INSERT INTO students (full_name, phone, email, course_name, batch_name, admission_date, status) VALUES (?, ?, ?, ?, ?, ?, ?)", students_data)
-        cursor.executemany("INSERT INTO payments (receipt_no, student_name, amount_paid, payment_mode, payment_date, dues_remaining) VALUES (?, ?, ?, ?, ?, ?)", payments_data)
+        cursor.executemany("INSERT OR IGNORE INTO payments (receipt_no, student_name, amount_paid, payment_mode, payment_date, dues_remaining) VALUES (?, ?, ?, ?, ?, ?)", payments_data)
         cursor.executemany("INSERT INTO attendance (student_name, batch_name, attendance_date, status) VALUES (?, ?, ?, ?)", attendance_data)
         cursor.executemany("INSERT INTO test_scores (student_name, test_name, marks_obtained, total_marks, grade) VALUES (?, ?, ?, ?, ?)", test_scores_data)
-        cursor.executemany("INSERT INTO certificates (cert_code, student_name, course_name, issue_date) VALUES (?, ?, ?, ?)", cert_data)
+        cursor.executemany("INSERT OR IGNORE INTO certificates (cert_code, student_name, course_name, issue_date) VALUES (?, ?, ?, ?)", cert_data)
         cursor.executemany("INSERT INTO feedbacks (student_name, faculty_name, rating, comments) VALUES (?, ?, ?, ?)", feedback_data)
 
         # 9. Seed CRM Leads (1000 Leads)
