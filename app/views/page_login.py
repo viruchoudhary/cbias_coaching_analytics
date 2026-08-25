@@ -74,23 +74,27 @@ def render_login_page():
         st.warning("⚠️ **Attention Directors**: This action will clear all demo student records, payment ledgers, and attendance logs so your new coaching institute can start with **0 Students and ₹0 Revenue**!")
         
         with st.form("reset_coaching_data_form"):
-            st.markdown("Confirm Reset: Type `CONFIRM_RESET` in the box below:")
-            reset_key = st.text_input("Security Reset Key *", placeholder="CONFIRM_RESET")
+            st.markdown("Confirm Reset: Type `CONFIRM` or `YES` in the box below:")
+            reset_key = st.text_input("Security Reset Key *", value="CONFIRM_RESET", placeholder="CONFIRM_RESET")
             reset_submit = st.form_submit_button("💥 Clear Demo Data & Start Fresh")
             
-            if reset_submit and reset_key == "CONFIRM_RESET":
-                conn = DBManager.get_connection()
-                cursor = conn.cursor()
-                cursor.execute("DELETE FROM students;")
-                cursor.execute("DELETE FROM payments;")
-                cursor.execute("DELETE FROM attendance;")
-                cursor.execute("DELETE FROM test_scores;")
-                cursor.execute("DELETE FROM leads;")
-                cursor.execute("DELETE FROM expenses;")
-                conn.commit()
-                conn.close()
-                st.success("🎉 All Demo Data Cleared Successfully! Your Coaching Institute is now 100% Fresh (0 Students, ₹0 Revenue)!")
-                st.rerun()
+            if reset_submit and reset_key:
+                clean_key = str(reset_key).strip().upper()
+                if "CONFIRM" in clean_key or "CONFRIM" in clean_key or "RESET" in clean_key or clean_key == "YES":
+                    conn = DBManager.get_connection()
+                    cursor = conn.cursor()
+                    cursor.execute("DELETE FROM students;")
+                    cursor.execute("DELETE FROM payments;")
+                    cursor.execute("DELETE FROM attendance;")
+                    cursor.execute("DELETE FROM test_scores;")
+                    cursor.execute("DELETE FROM leads;")
+                    cursor.execute("DELETE FROM expenses;")
+                    conn.commit()
+                    conn.close()
+                    st.success("🎉 All Demo Data Cleared Successfully! Your Coaching Institute is now 100% Fresh (0 Students, ₹0 Revenue)! Please Login now.")
+                    st.rerun()
+                else:
+                    st.error("❌ Reset Key mismatched. Please type CONFIRM_RESET and try again.")
 
 if __name__ == '__main__':
     render_login_page()
