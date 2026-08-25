@@ -38,18 +38,24 @@ AuthManager.seed_default_users()
 if 'authenticated' not in st.session_state:
     st.session_state['authenticated'] = False
 
-# 3. Futuristic Cyberpunk 3D Styling + HIDE STREAMLIT HEADER & GITHUB ICON
+# 3. Futuristic Cyberpunk 3D Styling + KEEP SIDEBAR ARROW VISIBLE BUT HIDE GITHUB/FORK LINKS
 st.markdown("""
 <style>
-    header[data-testid="stHeader"] {
-        visibility: hidden;
-        height: 0px;
-    }
+    /* HIDE ONLY GITHUB FORK & DEPLOY BUTTONS BUT KEEP SIDEBAR TOGGLE ARROW VISIBLE */
     #MainMenu {
         visibility: hidden;
     }
     footer {
         visibility: hidden;
+    }
+    .stAppDeployButton {
+        display: none !important;
+    }
+    a[href*="github.com"] {
+        display: none !important;
+    }
+    button[title="View app in GitHub"] {
+        display: none !important;
     }
     .stAppViewContainer {
         background: radial-gradient(circle at 50% 0%, #064e3b 0%, #022c22 40%, #030712 90%);
