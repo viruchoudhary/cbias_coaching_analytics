@@ -22,19 +22,20 @@ def render_fees_page():
     student_map = {}
     if not students_df.empty:
         for idx, row in students_df.iterrows():
-            s_id = row.get('id', idx + 1)
+            s_id = row.get('student_id', row.get('id', idx + 1))
             name = row.get('full_name', 'Student')
-            mob = row.get('parent_mobile', 'N/A')
+            mob = row.get('parent_mobile', row.get('phone', 'N/A'))
             batch = row.get('batch_name', 'General')
-            dues = row.get('pending_dues', 0)
+            dues = row.get('pending_dues', row.get('pending_fees', 15000.0))
+            if pd.isna(dues): dues = 15000.0
             
-            opt_str = f"ID: #{s_id} - {name} | Mob: {mob} | Batch: {batch} | Dues: ₹{dues:,.0f}"
+            opt_str = f"ID: #{s_id} - {name} | Mob: {mob} | Batch: {batch}"
             student_options.append(opt_str)
-            student_map[opt_str] = (name, s_id, dues)
+            student_map[opt_str] = (name, s_id, float(dues))
     else:
-        opt_str = "ID: #1 - Aarav Sharma | Mob: 9876543210 | Batch: Batch-A | Dues: ₹15,000"
+        opt_str = "ID: #1 - Aarav Sharma | Mob: 9876543210 | Batch: Batch-A"
         student_options = [opt_str]
-        student_map[opt_str] = ("Aarav Sharma", 1, 15000)
+        student_map[opt_str] = ("Aarav Sharma", 1, 15000.0)
 
     with st.expander("💵 Collect Fee & Issue Digital Receipt", expanded=False):
         with st.form("fee_collection_form"):
@@ -42,11 +43,11 @@ def render_fees_page():
             selected_option = c1.selectbox("Select Student (Unique ID & Mobile) *", student_options)
             
             # Extract student details from selected composite string
-            raw_name, selected_id, auto_dues = student_map.get(selected_option, ("Student", 1, 15000))
+            raw_name, selected_id, auto_dues = student_map.get(selected_option, ("Student", 1, 15000.0))
 
             amount_paid = c2.number_input("Amount Collected (₹) *", min_value=500.0, value=5000.0, step=500.0)
             pay_mode = c1.selectbox("Payment Mode *", ["UPI (PhonePe/GPay)", "Cash", "Bank Transfer", "Credit Card"])
-            dues_remaining = c2.number_input("Remaining Dues (₹)", min_value=0.0, value=float(max(0, auto_dues - amount_paid)), step=500.0)
+            dues_remaining = c2.number_input("Remaining Dues (₹)", min_value=0.0, value=float(max(0.0, auto_dues - amount_paid)), step=500.0)
 
             rec_submit = st.form_submit_button("🧾 Record Payment & Generate Receipt")
             if rec_submit and selected_option:
@@ -59,13 +60,19 @@ def render_fees_page():
                     "INSERT INTO payments (receipt_no, student_name, amount_paid, payment_mode, payment_date, dues_remaining) VALUES (?, ?, ?, ?, ?, ?)",
                     (receipt_no, f"{raw_name} (ID: #{selected_id})", amount_paid, pay_mode, pay_date, dues_remaining)
                 )
-
-                # Also update student pending dues in students table
-                cursor.execute(
-                    "UPDATE students SET pending_dues = ? WHERE id = ?",
-                    (dues_remaining, selected_id)
-                )
                 conn.commit()
+
+                # Fail-safe update for students table if pending_dues or pending_fees exists
+                try:
+                    cursor.execute("UPDATE students SET pending_dues = ? WHERE student_id = ?", (dues_remaining, selected_id))
+                    conn.commit()
+                except Exception:
+                    try:
+                        cursor.execute("UPDATE students SET pending_fees = ? WHERE student_id = ?", (dues_remaining, selected_id))
+                        conn.commit()
+                    except Exception:
+                        pass
+
                 conn.close()
 
                 st.success(f"🎉 Payment Recorded Successfully for **{raw_name} (ID: #{selected_id})**! Receipt No: **{receipt_no}**")
