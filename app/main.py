@@ -38,7 +38,7 @@ AuthManager.seed_default_users()
 if 'authenticated' not in st.session_state:
     st.session_state['authenticated'] = False
 
-# 3. BULLETPROOF HEADER & SIDEBAR TOGGLE ARROW STYLING
+# 3. COMPLETE LIGHT & CRISP THEME OVERRIDE FOR ALL STREAMLIT WIDGETS & TABLES
 st.markdown("""
 <style>
     /* NATIVE HEADER BAR MUST BE VISIBLE FOR TOGGLE ARROW */
@@ -69,36 +69,90 @@ st.markdown("""
         fill: #ffffff !important;
     }
 
-    /* HIDE ONLY GITHUB & DEPLOY BUTTONS ON RIGHT SIDE */
-    div[data-testid="stHeaderActionElements"] {
-        display: none !important;
-    }
-    .stAppDeployButton {
-        display: none !important;
-    }
-    #MainMenu {
-        visibility: hidden !important;
-    }
-    footer {
-        visibility: hidden !important;
-    }
-    a[href*="github.com"] {
-        display: none !important;
-    }
-
-    /* LIGHT & CRISP BACKGROUND */
-    .stAppViewContainer {
-        background-color: #f8fafc !important;
-        color: #0f172a !important;
-    }
-    .main {
+    /* LIGHT & CRISP APP BACKGROUND */
+    .stAppViewContainer, .main, [data-testid="stAppViewContainer"] {
         background-color: #f8fafc !important;
         color: #0f172a !important;
     }
     
-    /* HIGH CONTRAST TEXT */
+    /* GLOBAL HIGH CONTRAST TEXT */
     h1, h2, h3, h4, h5, h6, p, span, label, div {
         color: #0f172a !important;
+    }
+
+    /* 1. SELECTBOXES & DROPDOWNS LIGHT THEME */
+    div[data-baseweb="select"] > div, div[data-baseweb="select"] * {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        border-color: #cbd5e1 !important;
+    }
+    div[data-baseweb="popover"], div[data-baseweb="menu"], div[data-baseweb="menu"] * {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+    }
+    ul[role="listbox"], li[role="option"] {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+    }
+
+    /* 2. TEXT INPUTS & TEXT AREAS LIGHT THEME */
+    div[data-baseweb="input"] > div, div[data-baseweb="textarea"] > div, textarea, input {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        border-color: #cbd5e1 !important;
+    }
+
+    /* 3. EXPANDERS & ACCORDIONS LIGHT THEME */
+    .stExpander, div[data-testid="stExpander"] {
+        background-color: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 10px !important;
+        color: #0f172a !important;
+    }
+    .stExpander *, div[data-testid="stExpander"] * {
+        color: #0f172a !important;
+    }
+
+    /* 4. DATAFRAMES & TABLES LIGHT THEME */
+    .stDataFrame, div[data-testid="stTable"], table, div[data-testid="stDataFrame"] {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 8px !important;
+    }
+    [data-testid="stTable"] th, [data-testid="stTable"] td, table th, table td {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        border-color: #cbd5e1 !important;
+    }
+    div[data-testid="stDataFrame"] * {
+        color: #0f172a !important;
+        background-color: #ffffff !important;
+    }
+
+    /* 5. FILE UPLOADERS LIGHT THEME */
+    div[data-testid="stFileUploader"], section[data-testid="stFileUploadDropzone"] {
+        background-color: #ffffff !important;
+        border: 2px dashed #059669 !important;
+        color: #0f172a !important;
+        border-radius: 10px !important;
+    }
+    section[data-testid="stFileUploadDropzone"] * {
+        color: #0f172a !important;
+    }
+
+    /* 6. BUTTONS LIGHT THEME */
+    .stButton > button, .stFormSubmitButton > button, button[kind="primary"], button[kind="secondary"] {
+        background: linear-gradient(90deg, #059669 0%, #047857 100%) !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 8px 20px !important;
+        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3) !important;
+    }
+    .stButton > button *, .stFormSubmitButton > button * {
+        color: #ffffff !important;
     }
 
     /* SIDEBAR LIGHT STYLING */
@@ -147,28 +201,22 @@ st.markdown("""
         font-weight: 700;
         font-size: 0.85rem;
     }
-    
-    /* INPUT BOX & BUTTON READABILITY */
-    .stTextInput input, .stSelectbox select {
-        background-color: #ffffff !important;
-        color: #0f172a !important;
-        border: 1px solid #cbd5e1 !important;
-        border-radius: 8px !important;
-    }
 
-    /* ALL BUTTONS (LOGIN, SUBMIT, ACTIONS) HIGH CONTRAST WHITE TEXT ON EMERALD */
-    .stButton button, div.stButton > button, .stFormSubmitButton > button {
-        background: linear-gradient(90deg, #059669 0%, #047857 100%) !important;
-        color: #ffffff !important;
-        font-weight: 700 !important;
-        font-size: 1rem !important;
-        border-radius: 8px !important;
-        border: none !important;
-        padding: 8px 20px !important;
-        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3) !important;
+    /* HIDE ONLY GITHUB & DEPLOY BUTTONS ON RIGHT SIDE */
+    div[data-testid="stHeaderActionElements"] {
+        display: none !important;
     }
-    .stButton button *, div.stButton > button *, .stFormSubmitButton > button * {
-        color: #ffffff !important;
+    .stAppDeployButton {
+        display: none !important;
+    }
+    #MainMenu {
+        visibility: hidden !important;
+    }
+    footer {
+        visibility: hidden !important;
+    }
+    a[href*="github.com"] {
+        display: none !important;
     }
 </style>
 """, unsafe_allow_html=True)
