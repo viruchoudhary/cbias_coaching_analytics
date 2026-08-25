@@ -38,18 +38,41 @@ AuthManager.seed_default_users()
 if 'authenticated' not in st.session_state:
     st.session_state['authenticated'] = False
 
-# 3. GORGEOUS CRISP LIGHT PROFESSIONAL THEME + HIGH CONTRAST READABILITY
+# 3. PERFECT MOBILE & DESKTOP STYLING + FIXED EMERALD SIDEBAR TOGGLE BUTTON
 st.markdown("""
 <style>
-    /* HIDE TOOLBAR & GITHUB FORK LINKS BUT KEEP SIDEBAR ARROW VISIBLE */
+    /* ENSURE HEADER CONTAINER IS VISIBLE FOR MOBILE & DESKTOP TOGGLE BUTTON */
+    header[data-testid="stHeader"] {
+        background-color: transparent !important;
+        z-index: 99990 !important;
+    }
+
+    /* ALWAYS KEEP MOBILE & DESKTOP SIDEBAR OPEN BUTTON VISIBLE IN TOP-LEFT */
+    button[data-testid="stSidebarCollapsedControl"] {
+        display: flex !important;
+        visibility: visible !important;
+        background-color: #059669 !important;
+        color: #ffffff !important;
+        border-radius: 8px !important;
+        padding: 8px 14px !important;
+        z-index: 999999 !important;
+        position: fixed !important;
+        top: 12px !important;
+        left: 12px !important;
+        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.5) !important;
+        border: 1px solid #047857 !important;
+    }
+    button[data-testid="stSidebarCollapsedControl"] * {
+        color: #ffffff !important;
+        fill: #ffffff !important;
+    }
+
+    /* HIDE ONLY GITHUB FORK & DEPLOY BUTTONS IN TOP RIGHT */
     [data-testid="stToolbar"] {
         display: none !important;
     }
     div[data-testid="stHeaderActionElements"] {
         display: none !important;
-    }
-    .stAppHeader {
-        background: #f8fafc !important;
     }
     #MainMenu {
         visibility: hidden !important;
@@ -105,6 +128,7 @@ st.markdown("""
         border: 1px solid #a7f3d0;
         border-radius: 14px;
         padding: 18px 24px;
+        margin-top: 15px;
         margin-bottom: 20px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
     }
