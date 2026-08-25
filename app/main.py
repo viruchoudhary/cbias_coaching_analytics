@@ -38,15 +38,18 @@ AuthManager.seed_default_users()
 if 'authenticated' not in st.session_state:
     st.session_state['authenticated'] = False
 
-# 3. Futuristic Cyberpunk 3D Styling + KEEP SIDEBAR ARROW VISIBLE BUT HIDE GITHUB/FORK LINKS
+# 3. Futuristic Cyberpunk 3D Styling + HIDE TOP-RIGHT GITHUB / EDIT ICONS COMPLETELY
 st.markdown("""
 <style>
-    /* HIDE ONLY GITHUB FORK & DEPLOY BUTTONS BUT KEEP SIDEBAR TOGGLE ARROW VISIBLE */
+    /* HIDE TOP RIGHT HEADER ACTION ELEMENTS (GITHUB ICON, EDIT PENCIL, SHARE) */
+    div[data-testid="stHeaderActionElements"] {
+        display: none !important;
+    }
     #MainMenu {
-        visibility: hidden;
+        visibility: hidden !important;
     }
     footer {
-        visibility: hidden;
+        visibility: hidden !important;
     }
     .stAppDeployButton {
         display: none !important;
@@ -54,8 +57,11 @@ st.markdown("""
     a[href*="github.com"] {
         display: none !important;
     }
-    button[title="View app in GitHub"] {
+    button[title*="GitHub"] {
         display: none !important;
+    }
+    header[data-testid="stHeader"] {
+        background: transparent !important;
     }
     .stAppViewContainer {
         background: radial-gradient(circle at 50% 0%, #064e3b 0%, #022c22 40%, #030712 90%);
