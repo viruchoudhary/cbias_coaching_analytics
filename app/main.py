@@ -38,7 +38,7 @@ AuthManager.seed_default_users()
 if 'authenticated' not in st.session_state:
     st.session_state['authenticated'] = False
 
-# 3. ULTIMATE STREAMLIT FORK & GITHUB LINK ELIMINATOR
+# 3. HIGH-CONTRAST LIGHT THEME + CLEAN DATAFRAME & FORK ELIMINATOR
 st.markdown("""
 <style>
     /* NATIVE HEADER BAR FOR TOGGLE ARROW */
@@ -149,21 +149,24 @@ st.markdown("""
         color: #0f172a !important;
     }
 
-    /* 4. DATAFRAMES & TABLES LIGHT THEME */
-    .stDataFrame, div[data-testid="stTable"], table, div[data-testid="stDataFrame"] {
+    /* 4. DATAFRAMES & TABLES CLEAN LIGHT THEME */
+    div[data-testid="stDataFrame"] {
         background-color: #ffffff !important;
-        color: #0f172a !important;
-        border: 1px solid #e2e8f0 !important;
-        border-radius: 8px !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 10px !important;
     }
-    [data-testid="stTable"] th, [data-testid="stTable"] td, table th, table td {
+    table, .stTable {
         background-color: #ffffff !important;
         color: #0f172a !important;
-        border-color: #cbd5e1 !important;
     }
-    div[data-testid="stDataFrame"] * {
-        color: #0f172a !important;
+    table th {
+        background-color: #f1f5f9 !important;
+        color: #047857 !important;
+        font-weight: 700 !important;
+    }
+    table td {
         background-color: #ffffff !important;
+        color: #0f172a !important;
     }
 
     /* 5. FILE UPLOADERS LIGHT THEME */
@@ -177,7 +180,7 @@ st.markdown("""
         color: #0f172a !important;
     }
 
-    /* 6. BUTTONS LIGHT THEME */
+    /* 6. BUTTONS HIGH CONTRAST EMERALD WITH WHITE BOLD TEXT */
     .stButton > button, .stFormSubmitButton > button, button[kind="primary"], button[kind="secondary"] {
         background: linear-gradient(90deg, #059669 0%, #047857 100%) !important;
         color: #ffffff !important;
