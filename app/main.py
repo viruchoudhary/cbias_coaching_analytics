@@ -38,33 +38,42 @@ AuthManager.seed_default_users()
 if 'authenticated' not in st.session_state:
     st.session_state['authenticated'] = False
 
-# 3. PERFECT MOBILE & DESKTOP STYLING + FIXED EMERALD SIDEBAR TOGGLE BUTTON
+# 3. HIGH-CONTRAST LIGHT THEME + BULLETPROOF BUTTON & SIDEBAR TOGGLE
 st.markdown("""
 <style>
-    /* ENSURE HEADER CONTAINER IS VISIBLE FOR MOBILE & DESKTOP TOGGLE BUTTON */
-    header[data-testid="stHeader"] {
-        background-color: transparent !important;
-        z-index: 99990 !important;
-    }
-
-    /* ALWAYS KEEP MOBILE & DESKTOP SIDEBAR OPEN BUTTON VISIBLE IN TOP-LEFT */
-    button[data-testid="stSidebarCollapsedControl"] {
+    /* ALWAYS KEEP SIDEBAR TOGGLE BUTTON FIXED AT TOP-LEFT (EMERALD GREEN) */
+    [data-testid="stSidebarCollapsedControl"] {
         display: flex !important;
         visibility: visible !important;
         background-color: #059669 !important;
         color: #ffffff !important;
-        border-radius: 8px !important;
-        padding: 8px 14px !important;
-        z-index: 999999 !important;
         position: fixed !important;
-        top: 12px !important;
-        left: 12px !important;
+        top: 14px !important;
+        left: 14px !important;
+        z-index: 9999999 !important;
+        border-radius: 8px !important;
+        padding: 6px 12px !important;
         box-shadow: 0 4px 12px rgba(5, 150, 105, 0.5) !important;
         border: 1px solid #047857 !important;
     }
-    button[data-testid="stSidebarCollapsedControl"] * {
+    [data-testid="stSidebarCollapsedControl"] * {
         color: #ffffff !important;
         fill: #ffffff !important;
+    }
+
+    /* ALL BUTTONS (LOGIN, SUBMIT, ACTIONS) HIGH CONTRAST WHITE TEXT ON EMERALD */
+    .stButton button, div.stButton > button, .stFormSubmitButton > button {
+        background: linear-gradient(90deg, #059669 0%, #047857 100%) !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        font-size: 1rem !important;
+        border-radius: 8px !important;
+        border: none !important;
+        padding: 8px 20px !important;
+        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3) !important;
+    }
+    .stButton button *, div.stButton > button *, .stFormSubmitButton > button * {
+        color: #ffffff !important;
     }
 
     /* HIDE ONLY GITHUB FORK & DEPLOY BUTTONS IN TOP RIGHT */
