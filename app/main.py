@@ -38,49 +38,42 @@ AuthManager.seed_default_users()
 if 'authenticated' not in st.session_state:
     st.session_state['authenticated'] = False
 
-# 3. HIGH-CONTRAST LIGHT THEME + BULLETPROOF BUTTON & SIDEBAR TOGGLE
+# 3. BULLETPROOF HEADER & SIDEBAR TOGGLE ARROW STYLING
 st.markdown("""
 <style>
-    /* ALWAYS KEEP SIDEBAR TOGGLE BUTTON FIXED AT TOP-LEFT (EMERALD GREEN) */
-    [data-testid="stSidebarCollapsedControl"] {
+    /* NATIVE HEADER BAR MUST BE VISIBLE FOR TOGGLE ARROW */
+    header[data-testid="stHeader"] {
+        display: flex !important;
+        visibility: visible !important;
+        background-color: #ffffff !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+        height: 3.5rem !important;
+        z-index: 99999 !important;
+    }
+
+    /* ALWAYS KEEP SIDEBAR OPEN BUTTON VISIBLE IN TOP-LEFT WITH EMERALD STYLING */
+    button[data-testid="stSidebarCollapsedControl"] {
         display: flex !important;
         visibility: visible !important;
         background-color: #059669 !important;
         color: #ffffff !important;
-        position: fixed !important;
-        top: 14px !important;
-        left: 14px !important;
-        z-index: 9999999 !important;
         border-radius: 8px !important;
-        padding: 6px 12px !important;
-        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.5) !important;
+        padding: 6px 14px !important;
+        margin-left: 10px !important;
+        margin-top: 6px !important;
+        box-shadow: 0 4px 10px rgba(5, 150, 105, 0.4) !important;
         border: 1px solid #047857 !important;
     }
-    [data-testid="stSidebarCollapsedControl"] * {
+    button[data-testid="stSidebarCollapsedControl"] * {
         color: #ffffff !important;
         fill: #ffffff !important;
     }
 
-    /* ALL BUTTONS (LOGIN, SUBMIT, ACTIONS) HIGH CONTRAST WHITE TEXT ON EMERALD */
-    .stButton button, div.stButton > button, .stFormSubmitButton > button {
-        background: linear-gradient(90deg, #059669 0%, #047857 100%) !important;
-        color: #ffffff !important;
-        font-weight: 700 !important;
-        font-size: 1rem !important;
-        border-radius: 8px !important;
-        border: none !important;
-        padding: 8px 20px !important;
-        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3) !important;
-    }
-    .stButton button *, div.stButton > button *, .stFormSubmitButton > button * {
-        color: #ffffff !important;
-    }
-
-    /* HIDE ONLY GITHUB FORK & DEPLOY BUTTONS IN TOP RIGHT */
-    [data-testid="stToolbar"] {
+    /* HIDE ONLY GITHUB & DEPLOY BUTTONS ON RIGHT SIDE */
+    div[data-testid="stHeaderActionElements"] {
         display: none !important;
     }
-    div[data-testid="stHeaderActionElements"] {
+    .stAppDeployButton {
         display: none !important;
     }
     #MainMenu {
@@ -88,9 +81,6 @@ st.markdown("""
     }
     footer {
         visibility: hidden !important;
-    }
-    .stAppDeployButton {
-        display: none !important;
     }
     a[href*="github.com"] {
         display: none !important;
@@ -137,7 +127,7 @@ st.markdown("""
         border: 1px solid #a7f3d0;
         border-radius: 14px;
         padding: 18px 24px;
-        margin-top: 15px;
+        margin-top: 10px;
         margin-bottom: 20px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
     }
@@ -164,6 +154,21 @@ st.markdown("""
         color: #0f172a !important;
         border: 1px solid #cbd5e1 !important;
         border-radius: 8px !important;
+    }
+
+    /* ALL BUTTONS (LOGIN, SUBMIT, ACTIONS) HIGH CONTRAST WHITE TEXT ON EMERALD */
+    .stButton button, div.stButton > button, .stFormSubmitButton > button {
+        background: linear-gradient(90deg, #059669 0%, #047857 100%) !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        font-size: 1rem !important;
+        border-radius: 8px !important;
+        border: none !important;
+        padding: 8px 20px !important;
+        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3) !important;
+    }
+    .stButton button *, div.stButton > button *, .stFormSubmitButton > button * {
+        color: #ffffff !important;
     }
 </style>
 """, unsafe_allow_html=True)
