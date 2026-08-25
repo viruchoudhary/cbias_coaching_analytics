@@ -38,11 +38,20 @@ AuthManager.seed_default_users()
 if 'authenticated' not in st.session_state:
     st.session_state['authenticated'] = False
 
-# 3. Futuristic Cyberpunk 3D Styling + HIDE TOP-RIGHT GITHUB / EDIT ICONS COMPLETELY
+# 3. Futuristic Cyberpunk 3D Styling + ULTIMATE TOOLBAR & GITHUB HIDER
 st.markdown("""
 <style>
-    /* HIDE TOP RIGHT HEADER ACTION ELEMENTS (GITHUB ICON, EDIT PENCIL, SHARE) */
+    /* ULTIMATE STREAMLIT TOOLBAR & GITHUB HIDER */
+    [data-testid="stToolbar"] {
+        display: none !important;
+    }
     div[data-testid="stHeaderActionElements"] {
+        display: none !important;
+    }
+    .stAppHeader {
+        display: none !important;
+    }
+    div[class*="stAppHeader"] {
         display: none !important;
     }
     #MainMenu {
