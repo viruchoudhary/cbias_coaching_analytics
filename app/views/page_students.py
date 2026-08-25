@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import sqlite3
+from datetime import datetime
 import os
 import sys
 
@@ -10,6 +11,42 @@ if root_dir not in sys.path:
     sys.path.insert(0, root_dir)
 
 from src.db_manager import DBManager
+
+def safe_insert_student(data_dict):
+    """Dynamically inserts data into students table matching available columns safely."""
+    conn = DBManager.get_connection()
+    cursor = conn.cursor()
+    
+    DBManager.init_db()
+    
+    cursor.execute("PRAGMA table_info(students)")
+    existing_cols = [c[1] for c in cursor.fetchall()]
+    
+    # Provide mandatory default values for NOT NULL columns
+    if 'course_name' not in data_dict or not data_dict.get('course_name'):
+        data_dict['course_name'] = "General Course"
+    if 'batch_name' not in data_dict or not data_dict.get('batch_name'):
+        data_dict['batch_name'] = "Batch-01"
+    if 'admission_date' not in data_dict or not data_dict.get('admission_date'):
+        data_dict['admission_date'] = str(datetime.now().date())
+    if 'status' not in data_dict or not data_dict.get('status'):
+        data_dict['status'] = "Active"
+    
+    valid_dict = {}
+    for k, v in data_dict.items():
+        if k in existing_cols:
+            if pd.isna(v):
+                valid_dict[k] = ""
+            else:
+                valid_dict[k] = v
+
+    cols = ", ".join(valid_dict.keys())
+    placeholders = ", ".join(["?"] * len(valid_dict))
+    sql = f"INSERT INTO students ({cols}) VALUES ({placeholders})"
+    
+    cursor.execute(sql, tuple(valid_dict.values()))
+    conn.commit()
+    conn.close()
 
 def render_students_page():
     st.markdown("### 👥 Module 2: Complete Student Master Profiles (18 Fields Schema)")
@@ -44,7 +81,7 @@ def render_students_page():
                 c5, c6, c7 = st.columns(3)
                 tot_fee = c5.number_input("Total Fee (₹)", min_value=0.0, value=30000.0, step=1000.0)
                 paid_fee = c6.number_input("Paid Fee (₹)", min_value=0.0, value=10000.0, step=1000.0)
-                pend_fee = tot_fee - paid_fee
+                pend_fee = max(0.0, tot_fee - paid_fee)
                 c7.metric("Pending Dues (₹)", f"₹{pend_fee:,.2f}")
 
                 notes = st.text_input("Special Remarks / Notes")
@@ -53,15 +90,29 @@ def render_students_page():
                 submit = st.form_submit_button("✅ Register Complete Student Profile")
                 if submit and name and phone:
                     photo_name = photo_file.name if photo_file else "default.png"
-                    conn = DBManager.get_connection()
-                    cursor = conn.cursor()
-                    cursor.execute(
-                        """INSERT INTO students (full_name, father_name, mother_name, phone, parent_mobile, email, address, course_name, batch_name, admission_date, joining_date, total_fees, paid_fees, pending_fees, status, photo_path, notes) 
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                        (name, f_name, m_name, phone, p_phone, email, address, course, batch, str(adm_date), str(join_date), tot_fee, paid_fee, pend_fee, "Active", photo_name, notes)
-                    )
-                    conn.commit()
-                    conn.close()
+                    
+                    student_data = {
+                        "full_name": name,
+                        "father_name": f_name,
+                        "mother_name": m_name,
+                        "phone": phone,
+                        "parent_mobile": p_phone,
+                        "email": email,
+                        "address": address,
+                        "course_name": course,
+                        "batch_name": batch,
+                        "admission_date": str(adm_date),
+                        "joining_date": str(join_date),
+                        "total_fees": float(tot_fee),
+                        "paid_fees": float(paid_fee),
+                        "pending_fees": float(pend_fee),
+                        "pending_dues": float(pend_fee),
+                        "status": "Active",
+                        "photo_path": photo_name,
+                        "notes": notes
+                    }
+                    
+                    safe_insert_student(student_data)
                     st.success(f"🎉 Complete Profile Registered for **{name}**!")
                     st.rerun()
 
@@ -79,38 +130,25 @@ def render_students_page():
             if uploaded_file:
                 try:
                     if uploaded_file.name.endswith('.csv'):
-                        bulk_df = pd.read_csv(uploaded_file)
+                        imp_df = pd.read_csv(uploaded_file)
                     else:
-                        bulk_df = pd.read_excel(uploaded_file)
+                        imp_df = pd.read_excel(uploaded_file)
 
-                    st.info(f"Loaded **{len(bulk_df)} student records** from file.")
-                    if st.button("🚀 Confirm & Import Students to Database"):
-                        conn = DBManager.get_connection()
-                        bulk_df.to_sql("students", conn, if_exists="append", index=False)
-                        conn.close()
-                        st.success(f"🎉 SUCCESS! **{len(bulk_df)} Student Profiles** imported into Database!")
-                        st.rerun()
-                except Exception as e:
-                    st.error(f"Error importing file: {e}")
+                    count = 0
+                    for _, r in imp_df.iterrows():
+                        r_dict = r.to_dict()
+                        if 'full_name' in r_dict and pd.notna(r_dict['full_name']):
+                            safe_insert_student(r_dict)
+                            count += 1
+
+                    st.success(f"🎉 Successfully Imported **{count} Students** into Master Database!")
+                    st.rerun()
+                except Exception as ex:
+                    st.error(f"❌ Excel Upload Error: {ex}")
 
     st.markdown("---")
-    st.subheader("📋 Registered Students Master Directory (18 Fields)")
-    fc1, fc2 = st.columns([1, 2])
-
-    status_filter = fc1.selectbox("Filter Status:", ["All", "Active", "Completed", "Dropped"])
-    search_query = fc2.text_input("🔍 Search Student by Name or Phone:", placeholder="e.g. Aarav Sharma")
-
-    filtered_df = students_df.copy()
-    if status_filter != "All":
-        filtered_df = filtered_df[filtered_df['status'] == status_filter]
-
-    if search_query:
-        filtered_df = filtered_df[
-            filtered_df['full_name'].str.contains(search_query, case=False, na=False) |
-            filtered_df['phone'].str.contains(search_query, case=False, na=False)
-        ]
-
-    st.dataframe(filtered_df, use_container_width=True)
+    st.subheader("📋 Active Master Student Roster")
+    st.dataframe(students_df, use_container_width=True)
 
 if __name__ == '__main__':
     render_students_page()

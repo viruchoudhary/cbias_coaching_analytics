@@ -21,7 +21,7 @@ class DBManager:
         # Batches Table
         cursor.execute("CREATE TABLE IF NOT EXISTS batches (batch_id INTEGER PRIMARY KEY AUTOINCREMENT, batch_name TEXT UNIQUE NOT NULL, course_name TEXT NOT NULL, faculty_name TEXT NOT NULL, time_slot TEXT NOT NULL, capacity INTEGER DEFAULT 30)")
         
-        # 4. Students Master Table (Expanded 18 Fields Schema as per Sir Brief)
+        # 4. Students Master Table (Expanded 18 Fields Schema)
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS students (
             student_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,11 +39,30 @@ class DBManager:
             total_fees REAL DEFAULT 0.0,
             paid_fees REAL DEFAULT 0.0,
             pending_fees REAL DEFAULT 0.0,
+            pending_dues REAL DEFAULT 0.0,
             status TEXT DEFAULT 'Active',
             photo_path TEXT,
             notes TEXT
         )
         """)
+
+        # Automated Column Migration (Ensures existing tables get new 18 fields safely)
+        cursor.execute("PRAGMA table_info(students)")
+        existing_student_cols = [c[1] for c in cursor.fetchall()]
+
+        required_student_cols = [
+            ("father_name", "TEXT"), ("mother_name", "TEXT"), ("parent_mobile", "TEXT"),
+            ("address", "TEXT"), ("joining_date", "DATE"), ("total_fees", "REAL DEFAULT 0.0"),
+            ("paid_fees", "REAL DEFAULT 0.0"), ("pending_fees", "REAL DEFAULT 0.0"),
+            ("pending_dues", "REAL DEFAULT 0.0"), ("photo_path", "TEXT"), ("notes", "TEXT")
+        ]
+
+        for col_name, col_type in required_student_cols:
+            if col_name not in existing_student_cols:
+                try:
+                    cursor.execute(f"ALTER TABLE students ADD COLUMN {col_name} {col_type}")
+                except Exception:
+                    pass
 
         # Payments Table
         cursor.execute("CREATE TABLE IF NOT EXISTS payments (payment_id INTEGER PRIMARY KEY AUTOINCREMENT, receipt_no TEXT UNIQUE NOT NULL, student_name TEXT NOT NULL, amount_paid REAL NOT NULL, payment_mode TEXT NOT NULL, payment_date DATE NOT NULL, dues_remaining REAL DEFAULT 0.0)")
