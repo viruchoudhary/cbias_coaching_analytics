@@ -17,16 +17,39 @@ def render_fees_page():
     students_df = DBManager.get_table_df("students")
     payments_df = DBManager.get_table_df("payments")
 
+    # Build Composite Unique Student Options (ID + Name + Mobile + Batch + Dues)
+    student_options = []
+    student_map = {}
+    if not students_df.empty:
+        for idx, row in students_df.iterrows():
+            s_id = row.get('id', idx + 1)
+            name = row.get('full_name', 'Student')
+            mob = row.get('parent_mobile', 'N/A')
+            batch = row.get('batch_name', 'General')
+            dues = row.get('pending_dues', 0)
+            
+            opt_str = f"ID: #{s_id} - {name} | Mob: {mob} | Batch: {batch} | Dues: ₹{dues:,.0f}"
+            student_options.append(opt_str)
+            student_map[opt_str] = (name, s_id, dues)
+    else:
+        opt_str = "ID: #1 - Aarav Sharma | Mob: 9876543210 | Batch: Batch-A | Dues: ₹15,000"
+        student_options = [opt_str]
+        student_map[opt_str] = ("Aarav Sharma", 1, 15000)
+
     with st.expander("💵 Collect Fee & Issue Digital Receipt", expanded=False):
         with st.form("fee_collection_form"):
             c1, c2 = st.columns(2)
-            student_name = c1.selectbox("Select Student *", students_df['full_name'].tolist() if not students_df.empty else ["Aarav Sharma"])
+            selected_option = c1.selectbox("Select Student (Unique ID & Mobile) *", student_options)
+            
+            # Extract student details from selected composite string
+            raw_name, selected_id, auto_dues = student_map.get(selected_option, ("Student", 1, 15000))
+
             amount_paid = c2.number_input("Amount Collected (₹) *", min_value=500.0, value=5000.0, step=500.0)
             pay_mode = c1.selectbox("Payment Mode *", ["UPI (PhonePe/GPay)", "Cash", "Bank Transfer", "Credit Card"])
-            dues_remaining = c2.number_input("Remaining Dues (₹)", min_value=0.0, value=15000.0, step=500.0)
+            dues_remaining = c2.number_input("Remaining Dues (₹)", min_value=0.0, value=float(max(0, auto_dues - amount_paid)), step=500.0)
 
             rec_submit = st.form_submit_button("🧾 Record Payment & Generate Receipt")
-            if rec_submit and student_name:
+            if rec_submit and selected_option:
                 receipt_no = f"REC-2024-{len(payments_df)+1:04d}"
                 pay_date = str(datetime.now().date())
 
@@ -34,20 +57,26 @@ def render_fees_page():
                 cursor = conn.cursor()
                 cursor.execute(
                     "INSERT INTO payments (receipt_no, student_name, amount_paid, payment_mode, payment_date, dues_remaining) VALUES (?, ?, ?, ?, ?, ?)",
-                    (receipt_no, student_name, amount_paid, pay_mode, pay_date, dues_remaining)
+                    (receipt_no, f"{raw_name} (ID: #{selected_id})", amount_paid, pay_mode, pay_date, dues_remaining)
+                )
+
+                # Also update student pending dues in students table
+                cursor.execute(
+                    "UPDATE students SET pending_dues = ? WHERE id = ?",
+                    (dues_remaining, selected_id)
                 )
                 conn.commit()
                 conn.close()
 
-                st.success(f"🎉 Payment Recorded Successfully! Receipt No: **{receipt_no}**")
+                st.success(f"🎉 Payment Recorded Successfully for **{raw_name} (ID: #{selected_id})**! Receipt No: **{receipt_no}**")
                 st.markdown(f"""
-                <div style='background:#1e293b; padding:20px; border-radius:12px; border:1px solid #10b981;'>
-                    <h4 style='color:#10b981; margin:0;'>🧾 OFFICIAL FEE RECEIPT - CBIAS</h4>
+                <div style='background:#ffffff; padding:20px; border-radius:12px; border:2px solid #059669; box-shadow: 0 4px 12px rgba(0,0,0,0.05);'>
+                    <h4 style='color:#047857; margin:0;'>🧾 OFFICIAL FEE RECEIPT - CBIAS</h4>
                     <p><b>Receipt No:</b> {receipt_no} | <b>Date:</b> {pay_date}</p>
-                    <p><b>Student Name:</b> {student_name}</p>
-                    <p><b>Amount Paid:</b> <span style='font-size:1.2rem; color:#34d399;'>₹{amount_paid:,.2f}</span> via {pay_mode}</p>
+                    <p><b>Student Name:</b> {raw_name} (ID: #{selected_id})</p>
+                    <p><b>Amount Paid:</b> <span style='font-size:1.2rem; color:#059669;'>₹{amount_paid:,.2f}</span> via {pay_mode}</p>
                     <p><b>Dues Remaining:</b> ₹{dues_remaining:,.2f}</p>
-                    <p style='font-size:0.8rem; color:#94a3b8;'>Status: Verified & Authorized Signature Stamp</p>
+                    <p style='font-size:0.8rem; color:#64748b;'>Status: Verified & Authorized Signature Stamp</p>
                 </div>
                 """, unsafe_allow_html=True)
                 st.rerun()

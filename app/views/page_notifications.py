@@ -24,45 +24,45 @@ def render_notifications_page():
         alert_type = nc1.selectbox("Select Notification Type *", ["🔴 Absent Student Alert", "💰 Fee Due Reminder", "🏆 Test Result Notification", "⚠️ Low Attendance Warning (<60%)"])
 
         # Format Dropdown with Unique Student ID, Name, Phone & Batch
-        if not students_df.empty and 'student_id' in students_df.columns:
-            labels = []
+        student_map = {}
+        labels = []
+        if not students_df.empty:
             for idx, row in students_df.iterrows():
-                b_name = row.get('batch_name', 'Batch-01')
-                if pd.isna(b_name): b_name = 'Batch-01'
-                lbl = f"ID: #{row['student_id']} - {row['full_name']} | Mob: {row['phone']} | Batch: {b_name}"
+                s_id = row.get('id', row.get('student_id', idx + 1))
+                s_name = row.get('full_name', 'Student')
+                s_mob = row.get('parent_mobile', row.get('phone', '9837396804'))
+                b_name = row.get('batch_name', 'MAST-Batch-01')
+                p_fee = row.get('pending_dues', row.get('pending_fees', 15000.0))
+
+                if pd.isna(b_name): b_name = 'MAST-Batch-01'
+                lbl = f"ID: #{s_id} - {s_name} | Mob: {s_mob} | Batch: {b_name} | Dues: ₹{p_fee:,.0f}"
                 labels.append(lbl)
+                student_map[lbl] = (s_id, s_name, s_mob, b_name, p_fee)
         else:
-            labels = ["ID: #1 - Sneha Mehta | Mob: 9837396804 | Batch: MAST-Batch-01"]
+            lbl = "ID: #1 - Sneha Mehta | Mob: 9837396804 | Batch: MAST-Batch-01 | Dues: ₹15,000"
+            labels = [lbl]
+            student_map[lbl] = (1, "Sneha Mehta", "9837396804", "MAST-Batch-01", 15000.0)
 
-        selected_label = nc2.selectbox("Select Student Profile (Unique ID & Batch) *", labels)
+        selected_label = nc2.selectbox("Select Student Profile (Unique ID & Mobile) *", labels)
 
-        # Parse selected student ID
-        try:
-            selected_id = int(selected_label.split("ID: #")[1].split(" - ")[0])
-            s_info = students_df[students_df['student_id'] == selected_id]
-        except Exception:
-            s_info = pd.DataFrame()
-
-        student_sel = s_info['full_name'].values[0] if not s_info.empty else "Sneha Mehta"
-        parent_phone = s_info['phone'].values[0] if not s_info.empty else "9837396804"
-        batch_name = s_info['batch_name'].values[0] if (not s_info.empty and 'batch_name' in s_info.columns) else "MAST-Batch-01"
-        pending_fee = s_info['pending_fees'].values[0] if (not s_info.empty and 'pending_fees' in s_info.columns) else 15000.0
+        s_id, student_sel, parent_phone, batch_name, pending_fee = student_map.get(selected_label, (1, "Sneha Mehta", "9837396804", "MAST-Batch-01", 15000.0))
 
         # Pre-draft message text based on selection
         if "Absent" in alert_type:
-            msg_text = f"Dear Parent, your child {student_sel} (Batch: {batch_name}) was marked ABSENT today at CBIAS Coaching. Please contact institute admin."
+            msg_text = f"Dear Parent, your child {student_sel} (ID: #{s_id}, Batch: {batch_name}) was marked ABSENT today at CBIAS Coaching. Please contact institute admin."
         elif "Fee" in alert_type:
-            msg_text = f"Dear Parent, fee payment reminder for {student_sel} (Batch: {batch_name}). Pending dues: ₹{pending_fee:,.2f}. Please clear dues at earliest."
+            msg_text = f"Dear Parent, fee payment reminder for {student_sel} (ID: #{s_id}, Batch: {batch_name}). Pending dues: ₹{pending_fee:,.2f}. Please clear dues at earliest."
         elif "Test" in alert_type:
-            msg_text = f"Dear Parent, test result update for {student_sel} (Batch: {batch_name}): Marks Obtained 85/100 (Grade: A+). Congratulations!"
+            msg_text = f"Dear Parent, test result update for {student_sel} (ID: #{s_id}, Batch: {batch_name}): Marks Obtained 85/100 (Grade: A+). Congratulations!"
         else:
-            msg_text = f"Dear Parent, WARNING: {student_sel}'s (Batch: {batch_name}) attendance is below 60%. Academic counselling required."
+            msg_text = f"Dear Parent, WARNING: {student_sel}'s (ID: #{s_id}, Batch: {batch_name}) attendance is below 60%. Academic counselling required."
 
         custom_msg = st.text_area("Message Content", value=msg_text, height=100)
 
         if st.button("🚀 Dispatch WhatsApp / SMS Alert"):
-            wa_link = f"https://api.whatsapp.com/send?phone=91{parent_phone}&text={custom_msg.replace(' ', '%20')}"
-            st.success(f"🎉 Alert Dispatched to Parent of **{student_sel}** (Mobile: {parent_phone}, Batch: {batch_name})!")
+            clean_phone = str(parent_phone).replace(" ", "").replace("-", "")
+            wa_link = f"https://api.whatsapp.com/send?phone=91{clean_phone}&text={custom_msg.replace(' ', '%20')}"
+            st.success(f"🎉 Alert Dispatched to Parent of **{student_sel} (ID: #{s_id})** (Mobile: {parent_phone}, Batch: {batch_name})!")
             st.markdown(f"👉 **[Click Here to Open WhatsApp Web Direct Chat]({wa_link})**", unsafe_allow_html=True)
 
     with t2:
