@@ -38,10 +38,10 @@ AuthManager.seed_default_users()
 if 'authenticated' not in st.session_state:
     st.session_state['authenticated'] = False
 
-# 3. COMPLETE LIGHT & CRISP THEME OVERRIDE FOR ALL STREAMLIT WIDGETS & TABLES
+# 3. ULTIMATE STREAMLIT FORK & GITHUB LINK ELIMINATOR
 st.markdown("""
 <style>
-    /* NATIVE HEADER BAR MUST BE VISIBLE FOR TOGGLE ARROW */
+    /* NATIVE HEADER BAR FOR TOGGLE ARROW */
     header[data-testid="stHeader"] {
         display: flex !important;
         visibility: visible !important;
@@ -67,6 +67,42 @@ st.markdown("""
     button[data-testid="stSidebarCollapsedControl"] * {
         color: #ffffff !important;
         fill: #ffffff !important;
+    }
+
+    /* HIDE EVERY FORK BUTTON & GITHUB LINK IN TOP RIGHT HEADER */
+    header[data-testid="stHeader"] a {
+        display: none !important;
+        visibility: hidden !important;
+    }
+    header[data-testid="stHeader"] button[title*="Fork"] {
+        display: none !important;
+    }
+    header[data-testid="stHeader"] div[class*="viewerBadge"] {
+        display: none !important;
+    }
+    header[data-testid="stHeader"] div[class*="actionElements"] {
+        display: none !important;
+    }
+    header[data-testid="stHeader"] div[data-testid="stHeaderActionElements"] {
+        display: none !important;
+    }
+    div[data-testid="stDecoration"] {
+        display: none !important;
+    }
+    [data-testid="stToolbar"] {
+        display: none !important;
+    }
+    .stAppDeployButton {
+        display: none !important;
+    }
+    #MainMenu {
+        visibility: hidden !important;
+    }
+    footer {
+        visibility: hidden !important;
+    }
+    a[href*="github.com"] {
+        display: none !important;
     }
 
     /* LIGHT & CRISP APP BACKGROUND */
@@ -200,23 +236,6 @@ st.markdown("""
         border-radius: 20px;
         font-weight: 700;
         font-size: 0.85rem;
-    }
-
-    /* HIDE ONLY GITHUB & DEPLOY BUTTONS ON RIGHT SIDE */
-    div[data-testid="stHeaderActionElements"] {
-        display: none !important;
-    }
-    .stAppDeployButton {
-        display: none !important;
-    }
-    #MainMenu {
-        visibility: hidden !important;
-    }
-    footer {
-        visibility: hidden !important;
-    }
-    a[href*="github.com"] {
-        display: none !important;
     }
 </style>
 """, unsafe_allow_html=True)
