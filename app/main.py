@@ -38,10 +38,10 @@ AuthManager.seed_default_users()
 if 'authenticated' not in st.session_state:
     st.session_state['authenticated'] = False
 
-# 3. Futuristic Cyberpunk 3D Styling + ULTIMATE TOOLBAR & GITHUB HIDER
+# 3. GORGEOUS CRISP LIGHT PROFESSIONAL THEME + HIGH CONTRAST READABILITY
 st.markdown("""
 <style>
-    /* ULTIMATE STREAMLIT TOOLBAR & GITHUB HIDER */
+    /* HIDE TOOLBAR & GITHUB FORK LINKS BUT KEEP SIDEBAR ARROW VISIBLE */
     [data-testid="stToolbar"] {
         display: none !important;
     }
@@ -49,10 +49,7 @@ st.markdown("""
         display: none !important;
     }
     .stAppHeader {
-        display: none !important;
-    }
-    div[class*="stAppHeader"] {
-        display: none !important;
+        background: #f8fafc !important;
     }
     #MainMenu {
         visibility: hidden !important;
@@ -66,45 +63,74 @@ st.markdown("""
     a[href*="github.com"] {
         display: none !important;
     }
-    button[title*="GitHub"] {
-        display: none !important;
-    }
-    header[data-testid="stHeader"] {
-        background: transparent !important;
-    }
+
+    /* LIGHT & CRISP BACKGROUND */
     .stAppViewContainer {
-        background: radial-gradient(circle at 50% 0%, #064e3b 0%, #022c22 40%, #030712 90%);
+        background-color: #f8fafc !important;
+        color: #0f172a !important;
     }
+    .main {
+        background-color: #f8fafc !important;
+        color: #0f172a !important;
+    }
+    
+    /* HIGH CONTRAST TEXT */
+    h1, h2, h3, h4, h5, h6, p, span, label, div {
+        color: #0f172a !important;
+    }
+
+    /* SIDEBAR LIGHT STYLING */
+    section[data-testid="stSidebar"] {
+        background: #ffffff !important;
+        border-right: 1px solid #e2e8f0 !important;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+    }
+    section[data-testid="stSidebar"] * {
+        color: #0f172a !important;
+    }
+
+    /* MAIN HEADER GRADIENT */
     .main-header {
-        background: linear-gradient(90deg, #10b981 0%, #06b6d4 50%, #3b82f6 100%);
+        background: linear-gradient(90deg, #059669 0%, #0284c7 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        font-size: 2.4rem;
+        font-size: 2.2rem;
         font-weight: 900;
         margin-bottom: 0.2rem;
     }
-    section[data-testid="stSidebar"] {
-        background: rgba(15, 23, 42, 0.9) !important;
-        backdrop-filter: blur(24px);
-        border-right: 1px solid rgba(16, 185, 129, 0.2);
-    }
+
+    /* TOP EXECUTIVE BANNER LIGHT */
     .top-banner {
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(6, 182, 212, 0.1) 100%);
-        border: 1px solid rgba(16, 185, 129, 0.3);
-        border-radius: 16px;
-        padding: 20px 28px;
-        margin-bottom: 24px;
-        backdrop-filter: blur(12px);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        background: linear-gradient(135deg, #ecfdf5 0%, #e0f2fe 100%);
+        border: 1px solid #a7f3d0;
+        border-radius: 14px;
+        padding: 18px 24px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
     }
+    .top-banner h2 {
+        color: #047857 !important;
+    }
+    .top-banner p {
+        color: #334155 !important;
+    }
+
+    /* ROLE BADGE */
     .role-badge-emerald {
-        background: linear-gradient(90deg, #10b981 0%, #059669 100%);
-        color: white;
-        padding: 6px 16px;
+        background: #059669;
+        color: #ffffff !important;
+        padding: 5px 14px;
         border-radius: 20px;
         font-weight: 700;
-        font-size: 0.9rem;
-        box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+        font-size: 0.85rem;
+    }
+    
+    /* INPUT BOX & BUTTON READABILITY */
+    .stTextInput input, .stSelectbox select {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 8px !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -139,8 +165,8 @@ def main():
         
         st.markdown("""
         <div class='top-banner'>
-            <h2 style='margin:0; color:#10b981;'>🔐 CBIAS Security & Access Control Portal</h2>
-            <p style='margin:4px 0 0 0; color:#9ca3af;'>System Status: <b style='color:#ef4444;'>● Authentication Required</b> | All Coaching Modules Are Locked Until Login.</p>
+            <h2 style='margin:0; color:#047857;'>🔐 CBIAS Security & Access Control Portal</h2>
+            <p style='margin:4px 0 0 0; color:#334155;'>System Status: <b style='color:#dc2626;'>● Authentication Required</b> | All Coaching Modules Are Locked Until Login.</p>
         </div>
         """, unsafe_allow_html=True)
         
@@ -189,8 +215,8 @@ def main():
     # Top Executive Banner
     st.markdown(f"""
     <div class='top-banner'>
-        <h2 style='margin:0; color:#10b981;'>🎓 CBIAS Coaching Intelligence & Analytics System</h2>
-        <p style='margin:4px 0 0 0; color:#9ca3af;'>Active Module: <b>{choice}</b> | User: <b style='color:#10b981;'>{user_name} ({user_role})</b> | Status: <b style='color:#34d399;'>● Authenticated</b></p>
+        <h2 style='margin:0; color:#047857;'>🎓 CBIAS Coaching Intelligence & Analytics System</h2>
+        <p style='margin:4px 0 0 0; color:#334155;'>Active Module: <b>{choice}</b> | User: <b style='color:#059669;'>{user_name} ({user_role})</b> | Status: <b style='color:#059669;'>● Authenticated</b></p>
     </div>
     """, unsafe_allow_html=True)
 
