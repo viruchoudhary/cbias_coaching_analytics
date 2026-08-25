@@ -72,6 +72,30 @@ class DBManager:
         cursor.execute("CREATE TABLE IF NOT EXISTS leads (lead_id INTEGER PRIMARY KEY AUTOINCREMENT, lead_name TEXT NOT NULL, phone TEXT NOT NULL, lead_source TEXT NOT NULL, status TEXT DEFAULT 'New', enquiry_date DATE NOT NULL)")
         # Expenses Table
         cursor.execute("CREATE TABLE IF NOT EXISTS expenses (expense_id INTEGER PRIMARY KEY AUTOINCREMENT, category TEXT NOT NULL, amount REAL NOT NULL, expense_date DATE NOT NULL, description TEXT)")
+        
+        # Tenants Table
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS tenants (
+            tenant_id TEXT PRIMARY KEY,
+            institute_name TEXT NOT NULL,
+            director TEXT NOT NULL,
+            phone TEXT NOT NULL,
+            city TEXT NOT NULL,
+            plan TEXT NOT NULL,
+            status TEXT DEFAULT 'Active',
+            onboard_date DATE NOT NULL
+        )
+        """)
+
+        # Seed Default Tenants if empty
+        cursor.execute("SELECT COUNT(*) FROM tenants")
+        if cursor.fetchone()[0] == 0:
+            default_tenants = [
+                ("TNT-001", "Viru Choudhary BI Academy", "Viru Choudhary", "9876543210", "Jaipur", "Professional", "Active", "2024-01-01"),
+                ("TNT-002", "Kota Science Analytics Institute", "Dr. Sharma", "9876543211", "Kota", "Standard", "Active", "2024-01-10"),
+                ("TNT-003", "Delhi Commerce Hub", "Rajesh Verma", "9876543212", "Delhi", "Basic", "Active", "2024-02-01")
+            ]
+            cursor.executemany("INSERT INTO tenants (tenant_id, institute_name, director, phone, city, plan, status, onboard_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", default_tenants)
 
         conn.commit()
         conn.close()
@@ -85,4 +109,4 @@ class DBManager:
 
 if __name__ == '__main__':
     DBManager.init_db()
-    print("CBIAS SQLite Database initialized successfully with 18 Student Fields!")
+    print("CBIAS SQLite Database initialized successfully with Tenants Table!")
