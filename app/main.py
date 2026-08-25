@@ -34,12 +34,19 @@ except Exception:
 DataSeeder.seed_data()
 AuthManager.seed_default_users()
 
-# 3. Futuristic Cyberpunk 3D Styling
+# 3. Futuristic Cyberpunk 3D Styling + HIDE STREAMLIT HEADER & GITHUB ICON
 st.markdown("""
 <style>
-    .main {
-        background-color: #030712;
-        color: #f3f4f6;
+    /* HIDE STREAMLIT TOP HEADER & GITHUB FORK ICON */
+    header[data-testid="stHeader"] {
+        visibility: hidden;
+        height: 0px;
+    }
+    #MainMenu {
+        visibility: hidden;
+    }
+    footer {
+        visibility: hidden;
     }
     .stAppViewContainer {
         background: radial-gradient(circle at 50% 0%, #064e3b 0%, #022c22 40%, #030712 90%);
@@ -63,7 +70,7 @@ st.markdown("""
         border-radius: 16px;
         padding: 20px 28px;
         margin-bottom: 24px;
-        backdrop-filter: blur(12px);
+        backdrop-filter: blur(129);
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
     }
     .role-badge-emerald {
