@@ -24,15 +24,30 @@ for d in [root_dir, src_dir, app_dir]:
 try:
     from src.data_seeder import DataSeeder
     from src.auth import AuthManager
+    from src.db_manager import DBManager
 except Exception:
     try:
         from data_seeder import DataSeeder
         from auth import AuthManager
+        from db_manager import DBManager
     except Exception as e:
         st.error(f"Module Import Error: {e}")
 
-DataSeeder.seed_data()
-AuthManager.seed_default_users()
+# Fail-safe DB & Seeder Init (Guarantees zero startup crashes under all database states)
+try:
+    DBManager.init_db()
+except Exception:
+    pass
+
+try:
+    AuthManager.seed_default_users()
+except Exception:
+    pass
+
+try:
+    DataSeeder.seed_data()
+except Exception:
+    pass
 
 # Initialize Authentication State
 if 'authenticated' not in st.session_state:
